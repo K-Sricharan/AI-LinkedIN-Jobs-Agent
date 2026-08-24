@@ -1,8 +1,5 @@
 # 🤖 AI-Powered Job Application Agent
 
-[![Watch the Demo Video](https://img.youtube.com/vi/mT89wYFOR-E/0.jpg)](https://youtu.be/mT89wYFOR-E)
-*(Click above to watch the demo video)*
-
 This repository contains an automated, AI-driven job application assistant. The agent extracts text from your master CV, analyzes multiple target job listings, evaluates match criteria, customizes your CV and cover letter factually for each role, generates print-ready PDF and Word (DOCX) files, and logs everything to a tracking Google Sheet.
 
 ---
