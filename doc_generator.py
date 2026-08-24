@@ -495,19 +495,30 @@ def generate_cl_docx(cl_data, filepath):
         section.right_margin = Inches(1.0)
         
     # Header
+    name = cl_data.get("name", "Candidate")
     name_p = doc.add_paragraph()
-    name_run = name_p.add_run("Jane Doe")
+    name_run = name_p.add_run(name)
     name_run.font.name = 'Calibri'
     name_run.font.size = Pt(18)
     name_run.font.bold = True
     name_run.font.color.rgb = RGB_PRIMARY
     
+    contact = cl_data.get("contact", {})
+    if isinstance(contact, dict):
+        contact_parts = [
+            contact.get("email"),
+            contact.get("phone"),
+            contact.get("location"),
+            contact.get("linkedin"),
+            contact.get("github")
+        ]
+        contact_str = " | ".join([p for p in contact_parts if p])
+    else:
+        contact_str = str(contact)
+        
     contact_p = doc.add_paragraph()
     contact_p.paragraph_format.space_after = Pt(18)
-    contact_run = contact_p.add_run(
-        "jane.doe@email.com | +44 7700 900077 | London, UK\n"
-        "linkedin.com/in/janedoe | github.com/janedoe"
-    )
+    contact_run = contact_p.add_run(contact_str)
     contact_run.font.name = 'Calibri'
     contact_run.font.size = Pt(9.5)
     contact_run.font.color.rgb = RGB_SECONDARY
@@ -515,7 +526,7 @@ def generate_cl_docx(cl_data, filepath):
     # Date
     date_p = doc.add_paragraph()
     date_p.paragraph_format.space_after = Pt(12)
-    date_run = date_p.add_run(cl_data.get("date", "June 4, 2026"))
+    date_run = date_p.add_run(cl_data.get("date", "August 25, 2026"))
     date_run.font.name = 'Calibri'
     date_run.font.size = Pt(10.5)
     date_run.font.color.rgb = RGB_TEXT
@@ -534,7 +545,7 @@ def generate_cl_docx(cl_data, filepath):
     # Subject
     sub_p = doc.add_paragraph()
     sub_p.paragraph_format.space_after = Pt(14)
-    sub_run = sub_p.add_run(cl_data.get("subject", "Application for AI Engineer Position"))
+    sub_run = sub_p.add_run(cl_data.get("subject", "Application for Position"))
     sub_run.font.name = 'Calibri'
     sub_run.font.size = Pt(11)
     sub_run.font.bold = True
@@ -562,7 +573,7 @@ def generate_cl_docx(cl_data, filepath):
     # Sign-off
     so_p = doc.add_paragraph()
     so_p.paragraph_format.space_before = Pt(12)
-    so_run = so_p.add_run(cl_data.get("sign_off", "Sincerely,\n\nJane Doe"))
+    so_run = so_p.add_run(cl_data.get("sign_off", f"Sincerely,\n\n{name}"))
     so_run.font.name = 'Calibri'
     so_run.font.size = Pt(10.5)
     so_run.font.color.rgb = RGB_TEXT
@@ -656,19 +667,32 @@ def generate_cl_pdf(cl_data, filepath):
     story = []
     
     # 1. Header
-    story.append(Paragraph("Jane Doe", style_name))
-    contact_html = "jane.doe@email.com &nbsp;|&nbsp; +44 7700 900077 &nbsp;|&nbsp; London, UK<br/>linkedin.com/in/janedoe &nbsp;|&nbsp; github.com/janedoe"
+    name = cl_data.get("name", "Candidate")
+    story.append(Paragraph(name, style_name))
+    
+    contact = cl_data.get("contact", {})
+    if isinstance(contact, dict):
+        contact_parts = [
+            contact.get("email"),
+            contact.get("phone"),
+            contact.get("location"),
+            contact.get("linkedin"),
+            contact.get("github")
+        ]
+        contact_html = " &nbsp;|&nbsp; ".join([p for p in contact_parts if p])
+    else:
+        contact_html = str(contact)
     story.append(Paragraph(contact_html, style_contact))
     
     # 2. Date
-    story.append(Paragraph(cl_data.get("date", "June 4, 2026"), style_meta))
+    story.append(Paragraph(cl_data.get("date", "August 25, 2026"), style_meta))
     
     # 3. Recipient
     rec_html = f"{cl_data.get('recipient', 'Hiring Manager')}<br/>{cl_data.get('company', 'Hiring Team')}"
     story.append(Paragraph(rec_html, style_meta))
     
     # 4. Subject
-    story.append(Paragraph(cl_data.get("subject", "Application for AI Engineer Position"), style_subject))
+    story.append(Paragraph(cl_data.get("subject", "Application for Position"), style_subject))
     
     # 5. Salutation
     story.append(Paragraph(cl_data.get("salutation", "Dear Hiring Manager,"), style_salutation))
@@ -678,7 +702,7 @@ def generate_cl_pdf(cl_data, filepath):
         story.append(Paragraph(para, style_body))
         
     # 7. Sign-off
-    so_html = cl_data.get("sign_off", "Sincerely,<br/><br/>Jane Doe").replace("\n", "<br/>")
+    so_html = cl_data.get("sign_off", f"Sincerely,<br/><br/>{name}").replace("\n", "<br/>")
     story.append(Paragraph(so_html, style_signoff))
     
     doc.build(story)
